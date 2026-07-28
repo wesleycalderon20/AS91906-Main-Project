@@ -8,29 +8,24 @@ COLOR_BLACK = pygame.Color("black")
 COLOR_WHITE = pygame.Color("white")
 COLOR_RED   = pygame.Color("red")
 COLOR_BLUE  = pygame.Color("blue")
-
 # Main Menu background color
 BACKGROUND_COLOR = pygame.Color('#c1ff72')
-
 # Gameplay Checkerboard background color
 CHECKERBOARD_EDGE = pygame.Color('#ff751f')
 CHECKERBOARD_DARK = pygame.Color('#ff914d')
 CHECKERBOARD_LIGHT = pygame.Color('#ffbd59')
-
 BASE_COLOR = pygame.Color('#14ae5c')  
-
 # Snake and Food Color
 SNAKE_COLOR = pygame.Color('#7ed957')
 FOOD_COLOR =  pygame.Color("#FFE600")
-
 # Buttons hover color
 HOVER_COLOR = pygame.Color("white")
-
 # Main game Font
 MAIN_FONT = 'freesansbold.ttf'
 FONT_SIZE = 35
 
 class Button:
+    # User interface button component
     def __init__(self, x, y, w, h, text, border_color):
         self._rect = pygame.Rect(x, y, w, h)
         self._text = text
@@ -38,14 +33,14 @@ class Button:
         self._mouse_over = False
         self._button_down = False
         self.text_color = COLOR_BLACK
-
+    # Buttons action when clicked
     def set_action(self, action_function):
         if callable(action_function):
             self._action = action_function
-
+    # Movement of mouse 
     def mouse_move(self, mouse_x, mouse_y):
         self._mouse_over = self._rect.collidepoint(mouse_x, mouse_y)
-
+    # Button moves down when clicked and moves up after clicked
     def mouse_click(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             if self._mouse_over:
@@ -54,8 +49,9 @@ class Button:
             self._button_down = False
 
     def draw(self, surface):
-        # Draw the button background
-        current_color = HOVER_COLOR if self._mouse_over else BASE_COLOR
+        # Draw the button layout
+        # Hover color button when pressed
+        current_color = HOVER_COLOR if self._mouse_over else BASE_COLOR # conditional expression
         pygame.draw.rect(surface, current_color, self._rect, self._rect.height // 2)
         font = pygame.font.Font(MAIN_FONT, FONT_SIZE)
         text_surf = font.render(self._text, True, self.text_color)
@@ -73,7 +69,6 @@ class MenuButtons:
         self.screen_h = screen_h
         self.buttons = []
         self.menu_buttons()
-
     # Game title background layout for main menu
     def game_title(self, surface):
         TITLE_Y = 100
@@ -91,14 +86,15 @@ class MenuButtons:
         surface.blit(title_surf, (self.screen_w // 2 - TITLE_X, TITLE_Y))
         for btn in self.buttons:
             btn.draw(surface)
-
+    # Main menu button customisation 
     def menu_buttons(self):
+        # Constants for buttons
         BTN_W = 220
         BTN_H = 60
         START_Y = 260
         SPACING = 80
         POS_X = (self.screen_w // 2) - (BTN_W // 2)
-        # Main Menu Buttons
+        # Draw Main Menu Buttons
         menu_items = [("Play", "play"), ("Settings", "settings"), ("Exit", "exit")]
         for i, (label, icon) in enumerate(menu_items):
             y_pos = START_Y + (i * SPACING)
@@ -121,11 +117,10 @@ class GamePlay:
         EXIT_BTN_Y = 30
         EXIT_BTN_WIDTH = 35
         EXIT_BTN_HEIGHT = 35
-    # UI Top Exit Button
+    # Top-right Exit Icon
         self.exit_btn_rect = pygame.Rect(self.screen_w - EXIT_BTN_X, EXIT_BTN_Y, EXIT_BTN_WIDTH, EXIT_BTN_HEIGHT)
         self.high_score = 0
         self.reset_game()
-
     def reset_game(self):
         self.score = 0
     # Starting positioning of snake
@@ -135,14 +130,13 @@ class GamePlay:
         self.next_direction = [1, 0]
         self.spawn_food()
         self.game_over = False
-
     def spawn_food(self):
         while True:
             self.food = [random.randint(0, self.background_x - 1), random.randint(0, self.background_y - 1)]
             if self.food in self.snake:
                 continue
             break
-
+    # snake movement Key controller
     def handle_input(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP and self.direction != [0, 1]:
@@ -157,7 +151,6 @@ class GamePlay:
             if self.exit_btn_rect.collidepoint(event.pos):
                 return "menu"
         return "playing"
-
     def update(self):
         if self.game_over:
             return
@@ -174,7 +167,7 @@ class GamePlay:
             return
     # Advance snake
         self.snake.insert(0, new_head)
-    # Food Collection Logic
+    # Food Collection Score
         if new_head == self.food:
             self.score += 1
             if self.score > self.high_score:
@@ -182,15 +175,14 @@ class GamePlay:
             self.spawn_food()
         else:
             self.snake.pop()
-
     def draw(self, surface):
     # Gameplay background fill
+    # Draw Gameplay Top Icons
         surface.fill(CHECKERBOARD_EDGE)
-    # TOP BANNER PANEL (Scores & Exit Controls)
         FONT = pygame.font.Font(MAIN_FONT, FONT_SIZE)
         SCORE_X = 115
         SCORE_Y = 35
-    # Score Icon layout
+    # Score Icon layout (Current Score)
         FOOD_SCORE_SIZE = 15
         FOOD_SCORE_X = 100
         FOOD_SCORE_Y = 50
@@ -198,7 +190,7 @@ class GamePlay:
         pygame.draw.circle(surface, COLOR_BLACK, (FOOD_SCORE_X, FOOD_SCORE_Y), FOOD_SCORE_SIZE, 2)
         score_txt = FONT.render(f": {self.score}", True, COLOR_BLACK)
         surface.blit(score_txt, (SCORE_X, SCORE_Y))
-     # Tophy ICON Graphic Placeholder
+     # Tophy Icon (High Score)
         TROPHY_X = 350
         TROPHY_Y = 30
         pygame.draw.rect(surface, COLOR_BLACK, (TROPHY_X, TROPHY_Y + 6, 18, 15)), \
@@ -206,7 +198,7 @@ class GamePlay:
         pygame.draw.rect(surface, COLOR_BLACK, (TROPHY_X + 2, TROPHY_Y + 28, 14, 7))
         high_score = FONT.render(f": {self.high_score}", True, COLOR_BLACK)
         surface.blit(high_score, (370, 35))
-    # Exit (X) Button Icon Layout
+    # Exit (X) Icon Layout 
         pygame.draw.line(surface, COLOR_BLACK, (self.exit_btn_rect.left, self.exit_btn_rect.top), (self.exit_btn_rect.right, self.exit_btn_rect.bottom), 10)
         pygame.draw.line(surface, COLOR_BLACK, (self.exit_btn_rect.left, self.exit_btn_rect.bottom), (self.exit_btn_rect.right, self.exit_btn_rect.top), 10)
     # Checkerboard Main Menu background Pattern Color
@@ -215,7 +207,7 @@ class GamePlay:
                 cell_rect = pygame.Rect(self.grid_x + (c * self.cell_size), self.grid_y + (r * self.cell_size), self.cell_size, self.cell_size)
                 current_cell_color = CHECKERBOARD_LIGHT if (r + c) % 2 == 0 else CHECKERBOARD_DARK
                 pygame.draw.rect(surface, current_cell_color, cell_rect)
-    # Draw game fruit
+    # Draw game food
         food_rx = self.grid_x + (self.food[0] * self.cell_size) + self.cell_size // 2
         food_ry = self.grid_y + (self.food[1] * self.cell_size) + self.cell_size // 2
         pygame.draw.circle(surface, FOOD_COLOR, (food_rx, food_ry), 12)
@@ -232,16 +224,17 @@ class GamePlay:
                 EYE_RADIUS = 5
             # Dynamically offset eyes depending on travel direction
                 if self.direction == [1, 0] or self.direction == [-1, 0]: 
-                # Horizontal
+                # Horizontal Eyes
                     pygame.draw.circle(surface, COLOR_BLACK, (seg_rect.centerx, seg_rect.top + 7), EYE_RADIUS)
                     pygame.draw.circle(surface, COLOR_BLACK, (seg_rect.centerx, seg_rect.bottom - 7), EYE_RADIUS)
                 else: 
-                # Vertical
+                # Vertical Eyes
                     pygame.draw.circle(surface, COLOR_BLACK, (seg_rect.left + 7, seg_rect.centery), EYE_RADIUS)
                     pygame.draw.circle(surface, COLOR_BLACK, (seg_rect.right - 7, seg_rect.centery), EYE_RADIUS)
     # Game Over Screen
         if self.game_over:
         # fill background color with darkgreen when the game is over
+        # GAME OVER title 
             surface.fill("darkgreen")
             gameover_font = pygame.font.Font(MAIN_FONT, 75)
             gameover_surf = gameover_font.render(" GAME OVER ", True, COLOR_RED)
@@ -250,22 +243,21 @@ class GamePlay:
             score_font = pygame.font.Font(MAIN_FONT, 45)
             sub_score = score_font.render(f" Total Score: {self.score} ", True, COLOR_BLACK)
             sub_score_rect = sub_score.get_rect(center = (self.screen_w // 2, self.screen_h // 2 + 10))
-        # Let the user to restart the game but reset the score and save the high score
+        # Let the user to restart the game but resets the score and record the high score
             sub_font = pygame.font.Font(MAIN_FONT, 30)
             sub_surf = sub_font.render(" Press [R] to Restart ", True, COLOR_BLACK)
             sub_rect = sub_surf.get_rect(center=(self.screen_w // 2, self.screen_h // 2 + 75))
             surface.blit(gameover_surf, gameover_rect)
             surface.blit(sub_score, sub_score_rect)
             surface.blit(sub_surf, sub_rect)
-        # Draw (X) Exit icon in Game Over Screen
+        # Draw (X) Exit icon on top-right of Game Over Screen
             pygame.draw.line(surface, COLOR_BLACK, (self.exit_btn_rect.left, self.exit_btn_rect.top), (self.exit_btn_rect.right, self.exit_btn_rect.bottom), 10)
             pygame.draw.line(surface, COLOR_BLACK, (self.exit_btn_rect.left, self.exit_btn_rect.bottom), (self.exit_btn_rect.right, self.exit_btn_rect.top), 10)
 
 # Main Menu screen adjustment and buttons input
 class MainMenu:
     def __init__(self):
-    # Changed to an instance variable so it can be updated dynamically
-        self.snakes_speed = 120
+        self.snakes_speed = 120 # Snakes normal speed
         BUTTON_1 = 0
         BUTTON_2 = 0
         BUTTON_3 = 0
@@ -288,7 +280,6 @@ class MainMenu:
         for label, icon in settings_items:
         # Structuring placeholders; coordinates will re-center dynamically in the draw step
             self.settings_buttons.append(Button(BUTTON_1, BUTTON_2, BUTTON_3, BUTTON_4, label, icon))
-
     def run(self):
         while self.running:
             coords = pygame.mouse.get_pos()
@@ -297,7 +288,6 @@ class MainMenu:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-            # MENU ENVIRONMENT LOGIC HANDLERS
                 if self.current_state == "menu":
                     if event.type == pygame.MOUSEMOTION:
                         for button in self.main_menu.buttons:
@@ -319,7 +309,7 @@ class MainMenu:
                                     self.current_state = "settings_screen"
                                 elif button._text == "Exit":
                                     self.running = False
-            # SETTINGS SCREEN ENVIRONMENT LOGIC HANDLERS
+            # Settings screen layout
                 elif self.current_state == "settings_screen":
                     if event.type == pygame.MOUSEMOTION:
                         for button in self.settings_buttons:
@@ -333,28 +323,25 @@ class MainMenu:
                             was_over = button._mouse_over
                             button.mouse_click(event)
                             if was_down and was_over:
-                                if button._text == "Easy":
+                                if button._text == "Easy": # Slower speed
                                     self.snakes_speed = 180  
-                                # Slower speed
                                     pygame.time.set_timer(self.SNAKE_UPDATE_EVENT, self.snakes_speed)
-                                    print("Game Mode set to EASY")
-                                elif button._text == "Normal":
+                                    print("Game Mode set to EASY") # Remind the player where game mode sets to
+                                elif button._text == "Normal": # Balanced speed
                                     self.snakes_speed = 120  
-                                # Balanced speed
                                     pygame.time.set_timer(self.SNAKE_UPDATE_EVENT, self.snakes_speed)
-                                    print("Game Mode set to NORMAL")
-                                elif button._text == "Hard":
+                                    print("Game Mode set to NORMAL") # Remind the player where game mode sets to
+                                elif button._text == "Hard": # Faster speed
                                     self.snakes_speed = 70   
-                                # Faster speed
                                     pygame.time.set_timer(self.SNAKE_UPDATE_EVENT, self.snakes_speed)
-                                    print("Game Mode set to HARD")
-                                elif button._text == "Menu":
+                                    print("Game Mode set to HARD") # Remind the player where game mode sets to
+                                elif button._text == "Menu": # Go to main menu screen
                                     self.current_state = "menu"
-            # RUNNING SNAKE GAMEPLAY LOGIC HANDLERS
+            # Snake controlers
                 elif self.current_state == "playing":
                 # Check if a directional button is pressed to unpause the gameplay
                     if event.type == pygame.KEYDOWN:
-                        if event.key in (pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d):
+                        if event.key in (pygame.K_UP, pygame.K_DOWN, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d): # Key buttons controllers
                             self.game_started = True
                     next_state = self.gameplay.handle_input(event)
                     if next_state == "menu":
@@ -372,7 +359,7 @@ class MainMenu:
             if self.current_state == "menu":
                 self.main_menu.screen_w = minimise_w
                 self.main_menu.screen_h = minimise_h
-            # Main Menu Buttons
+            # Main Menu Buttons customisation
                 BUTTON_X = 220
                 BUTTON_Y = 260
                 SPACING = 80
@@ -400,13 +387,14 @@ class MainMenu:
             # Keep matching background colors
                 self.screen.fill(BACKGROUND_COLOR)
             # Settings input (Header Adjustment)
+            # Constants for game mode buttons
                 SETTINGS_BORDER_X = 365
                 SETTINGS_BORDER_Y = 50
                 SETTINS_BORDER_SIZE = 3
                 SETTINGS_OFFSET_X = 1
                 SETTINGS_OFFSET_Y = -1
                 settings_font = pygame.font.Font(MAIN_FONT, 55)
-                settings_surf = settings_font.render(" Select Mode ", True, COLOR_BLACK)
+                settings_surf = settings_font.render(" Select Mode ", True, COLOR_BLACK) # Asking user to choose game mode
                 pygame.draw.rect(settings_surf, COLOR_BLACK, (SETTINGS_OFFSET_X, SETTINGS_OFFSET_Y, SETTINGS_BORDER_X, SETTINGS_BORDER_Y), SETTINS_BORDER_SIZE)
                 text_rect = settings_surf.get_rect(center=(minimise_w // 2, 100))
                 self.screen.blit(settings_surf, text_rect)
@@ -421,12 +409,12 @@ class MainMenu:
                     button._rect.y = SETTINGS_BTN_Y + (i * DIFFICULT_SPACING)
                     button._rect.width = SETTINGS_BTN_W
                     button._rect.height = SETTINGS_BTN_H
-                # Game mode buttons adjustment
-                    if button._text == "Easy" and self.snakes_speed == 180:
-                        button.hover_color = HOVER_COLOR 
-                    elif button._text == "Normal" and self.snakes_speed == 120:
+                # Snake Speeds adjustment
+                    if button._text == "Easy" and self.snakes_speed == 180: # Slow speed
+                        button.hover_color = HOVER_COLOR # Hover when buttons being pressed
+                    elif button._text == "Normal" and self.snakes_speed == 120: # Normal Speed
                         button.hover_color = HOVER_COLOR
-                    elif button._text == "Hard" and self.snakes_speed == 70:
+                    elif button._text == "Hard" and self.snakes_speed == 70: # Fast speed
                         button.hover_color = HOVER_COLOR
                     else:
                         button.hover_color = COLOR_WHITE
